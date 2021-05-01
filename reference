@@ -1,0 +1,71 @@
+
+<extent-report-community-edition-version>5.0.8</extent-report-community-edition-version>
+
+<dependency>
+			<groupId>com.aventstack</groupId>
+			<artifactId>extentreports</artifactId>
+			<version>${extent-report-community-edition-version}</version>
+		</dependency>
+    
+    
+    import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentSparkReporter;
+
+public class ReportUtil {
+	public static ExtentReports extentReport;
+	public static ExtentTest extendLog;
+	
+	
+	public static void initExtendReportConfig(String suiteName){
+		
+		extentReport = new ExtentReports ();
+		ExtentSparkReporter spark = new ExtentSparkReporter(System.getProperty("user.dir") +"/test-report/"+suiteName+".html");
+		
+		spark.config().setDocumentTitle("CRU Test Report");
+		spark.config().setReportName(suiteName+ "  Report");
+		spark.config().setOfflineMode(true);
+
+		extentReport.attachReporter(spark);
+		
+		//extent.addSystemInfo("Environment","Environment Name")
+		extentReport.setSystemInfo("Host Name", "CRU");
+		extentReport.setSystemInfo("Environment", "Automation Testing");		
+		//extentReport.setSystemInfo("User Name", "");
+              
+		
+	}
+	public static void endExtendReportCreation(){
+		
+	
+		extentReport.flush();
+                
+    }
+
+}
+
+
+SuiteListener
+onStart
+ReportUtil.initExtendReportConfig(suite.getName());
+onFinish
+ReportUtil.endExtendReportCreation();
+
+TestListener
+
+onTestStart
+ReportUtil.extendLog = ReportUtil.extentReport.createTest(arg0.getName());
+onTestFailure
+
+Throwable s = result.getThrowable();
+		log.info(s.getMessage());
+		ReportUtil.extendLog.log(Status.FAIL, MarkupHelper.createLabel(result.getName().concat(" Failed. Reason: "+s.getMessage()), ExtentColor.RED));
+    
+    
+    onTestSkipped
+    
+    Throwable s = result.getThrowable();
+		ReportUtil.extendLog.log(Status.FAIL, result.getName().concat(" skipped. Reason: "+s.getMessage()));
+    
+    onTestSuccess
+    ReportUtil.extendLog.log(Status.PASS,MarkupHelper.createLabel( result.getName().concat(" passed"), ExtentColor.GREEN ));
